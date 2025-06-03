@@ -13,7 +13,7 @@ Phase 1
 
      docker --version
 
- Inside the system go to the folder which contain the app and the docker file 
+ Inside the system go to the folder which contain the app file name (hivebox-phase1.py) and the docker file name (phase1.Dockerfile)
 
     cd Hivebox
 
