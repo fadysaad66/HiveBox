@@ -1,6 +1,7 @@
 """Unit tests for the temperature API endpoints."""
 
 import unittest
+import requests
 from hivebox_v2 import app
 
 class AppEndpointTests(unittest.TestCase):
