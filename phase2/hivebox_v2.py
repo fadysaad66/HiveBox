@@ -1,5 +1,5 @@
 ("""Flask app that fetches and returns average temperature from
- OpenSenseMap using RFC3339-compliant  timestamps.""")
+ OpenSenseMap using RFC3339-compliant timestamps.""")
 
 from datetime import datetime, timedelta, timezone
 from flask import Flask, jsonify
