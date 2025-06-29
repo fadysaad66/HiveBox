@@ -19,11 +19,11 @@ class AppEndpointTests(unittest.TestCase):
         self.assertIsInstance(data['version'], str)
 
     def test_temperature(self):
-    response = requests.get(f"{self.BASE}/temperature")
-    print("[DEBUG] Response:", response.status_code, response.text)
+        response = requests.get(f"{self.BASE}/temperature")
+        print("[DEBUG] Response:", response.status_code, response.text)
 
     # Accept either a 200 (success) or 404 (no recent data)
-    self.assertIn(response.status_code, [200, 404], msg="Expected 200 or 404 from /temperature")
+     self.assertIn(response.status_code, [200, 404], msg="Expected 200 or 404 from /temperature")
 
     if response.status_code == 200:
         data = response.json()
