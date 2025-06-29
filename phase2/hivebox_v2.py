@@ -1,30 +1,18 @@
-"""Flask app that fetches average temperature from OpenSenseMap."""
+("""Flask app that fetches and returns average temperature from
+ OpenSenseMap using RFC3339-compliant timestamps.""")
 
 from datetime import datetime, timedelta, timezone
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 import requests
 
 app = Flask(__name__)
-APP_VERSION = "2.0.1"
+APP_VERSION = "1.0.0"
 
-def get_cutoff_iso(hours):
-    """Return ISO 8601 timestamp from `hours` ago in UTC."""
-    return (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
-
-def is_recent(timestamp_iso, cutoff_iso):
-    """Check if a given ISO timestamp is more recent than the cutoff."""
-    try:
-        ts = datetime.fromisoformat(timestamp_iso.replace('Z', '+00:00'))
-        cutoff = datetime.fromisoformat(cutoff_iso)
-        return ts > cutoff
-    except ValueError as e:
-        print(f"[ERROR] Timestamp parse failed: {e}")
-        return False
-
-def is_valid_temp_sensor(sensor):
-    """Determine if the sensor likely reports temperature data."""
-    title = sensor.get('title', '').lower()
-    return any(k in title for k in ['temp', '°c', 'air']) and isinstance(sensor.get('lastMeasurement'), dict)
+def get_rfc3339_zulu(hours=1):
+    ("""Return RFC3339 timestamp without microseconds
+      and Z for UTC (e.g., 2025-06-28T18:22:00Z)""")
+    return ((datetime.now(timezone.utc) -
+             timedelta(hours=hours)).replace(microsecond=0).isoformat().replace('+00:00', 'Z'))
 
 @app.route('/version')
 def version():
@@ -33,45 +21,57 @@ def version():
 
 @app.route('/temperature')
 def temperature():
-    """Fetch and average temperature values updated within cutoff time."""
+    """Return average temperature from sensors titled 'temperature' in the last 1 hour."""
     try:
-        hours = float(request.args.get('hours', 12))
-        cutoff_iso = get_cutoff_iso(hours)
-        response = requests.get(
-            'https://api.opensensemap.org/boxes?phenomenon=temperature',
-            timeout=10
-        )
+        # Generate proper RFC3339 timestamps for date range
+        cutoff_iso = get_rfc3339_zulu(1)  # 1 hour ago
+        now_iso = (
+        datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'))
+
+        # Construct API URL
+        url = (f"https://api.opensensemap.org/boxes?"
+               f"phenomenon=temperature&date={cutoff_iso},{now_iso}")
+        print(f"[DEBUG] Requesting: {url}")
+
+        # Fetch data
+        response = requests.get(url, timeout=15)
         response.raise_for_status()
         boxes = response.json()
 
         temps = []
         for box in boxes:
             for sensor in box.get('sensors', []):
-                if not is_valid_temp_sensor(sensor):
+                title = sensor.get('title', '').lower()
+                if title != 'temperature':  # strict match
                     continue
-                meas = sensor['lastMeasurement']
-                ts = meas.get('createdAt')
-                val = meas.get('value')
-                if ts and val is not None and is_recent(ts, cutoff_iso):
+
+                measurement = sensor.get('lastMeasurement', {})
+                value = measurement.get('value')
+
+                if value is not None:
                     try:
-                        temps.append(float(val))
+                        temps.append(float(value))
                     except (ValueError, TypeError):
                         continue
 
         if temps:
+            average = round(sum(temps) / len(temps), 2)
             return jsonify({
-                'average_temperature': round(sum(temps) / len(temps), 2),
+                'average_temperature': average,
                 'unit': '°C',
-                'count': len(temps),
-                'cutoff_time': cutoff_iso
+                'sensor_count': len(temps),
+                'cutoff_time_start': cutoff_iso,
+                'cutoff_time_end': now_iso
             })
 
         return jsonify({
-            'message': f'No recent temperature data found in the last {int(hours)} hours.',
-            'cutoff_time': cutoff_iso
+            'message': 'No temperature data found within the last 1 hour.',
+            'cutoff_time_start': cutoff_iso,
+            'cutoff_time_end': now_iso
         }), 404
 
     except requests.RequestException as err:
-        return jsonify({'error': f'Request failed: {err}'}), 500
+        return jsonify({'error': f'Failed to fetch data: {err}'}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
