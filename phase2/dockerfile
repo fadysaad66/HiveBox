@@ -6,8 +6,8 @@ COPY requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY test3.py  ./
+COPY hivebox_v2.py  ./
 
 EXPOSE 5000
 
-CMD [ "python", "test3.py"]
+CMD [ "python", "hivebox_v2.py"]
