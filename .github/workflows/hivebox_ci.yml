@@ -50,6 +50,14 @@ jobs:
         RESPONSE=$(curl -s http://localhost:5000/version)
         echo "Response: $RESPONSE"
         echo "$RESPONSE" | grep '"version": "1.0.0"'
+
+     - name: Publish Test Report
+       uses: mikepenz/action-junit-report@v3
+       if: success() || failure() # always run even if the previous step fails
+       with:
+        report_paths: '**/junit.xml'
+        detailed_summary: true
+        include_passed: true
         
         
    
