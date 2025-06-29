@@ -19,13 +19,17 @@ class AppEndpointTests(unittest.TestCase):
         self.assertIsInstance(data['version'], str)
 
     def test_temperature(self):
-        """Test that /temperature returns valid structure or error message."""
-        response = self.client.get('/temperature')
-        data = response.get_json()
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(
-            'average_temperature' in data or 'message' in data or 'error' in data
-        )
+    response = requests.get(f"{self.BASE}/temperature")
+    print("[DEBUG] Response:", response.status_code, response.text)
+
+    # Accept either a 200 (success) or 404 (no recent data)
+    self.assertIn(response.status_code, [200, 404], msg="Expected 200 or 404 from /temperature")
+
+    if response.status_code == 200:
+        data = response.json()
+        self.assertIn("average_temperature", data)
+        self.assertIn("unit", data)
+
 
 if __name__ == '__main__':
     unittest.main()
