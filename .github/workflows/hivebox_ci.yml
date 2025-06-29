@@ -47,6 +47,7 @@ jobs:
      - name: run docker 
        run: |
          docker run -d -p 5000:5000 --name hivebox hivebox
+         sleep 5
 
      - name: Test /version endpoint
        run: |
