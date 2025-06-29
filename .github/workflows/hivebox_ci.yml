@@ -1,0 +1,56 @@
+name: hivebox_ci
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'phase2/**'
+jobs: 
+   build:
+     runs-on: ubuntu-latest 
+     steps:
+     - uses: actions/checkout@v4 
+        
+     - name: checkout python
+       uses: actions/setup-python@v3
+       with:
+        python-version: "3.10"
+        
+     - name: Install Python dependencies
+       run: |
+        python -m pip install --upgrade pip
+        pip install flask requests python-dateutil pylint
+
+     - name: pylint check
+       run: |
+          pylint hivebox_v2.py
+          
+
+     - name: install hadolint 
+       run: |
+        wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+        chmod +x /usr/local/bin/hadolint
+        
+     - name: Lint Dockerfile
+       run: hadolint Dockerfile
+
+     - name: build docker
+       run: |
+        docker build -t hivebox .
+
+     - name: Run unit tests
+       run: python -m unittest discover -s . -p "unit_test.py"
+
+     - name: run docker 
+       run: |
+         docker run -d -p 5000:5000 -name hivebox hivebox
+
+     - name: Test /version endpoint
+       run: |
+        RESPONSE=$(curl -s http://localhost:5000/version)
+        echo "Response: $RESPONSE"
+        echo "$RESPONSE" | grep '"version": "1.0.0"'
+        
+        
+   
+    
