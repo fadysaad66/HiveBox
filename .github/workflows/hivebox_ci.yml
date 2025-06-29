@@ -4,7 +4,11 @@ on:
     branches:
       - main
     paths:
-      - 'phase2/**'
+     - 'phase2/**'
+permissions:
+  contents: read
+  checks: write     
+  
 jobs: 
    build:
      runs-on: ubuntu-latest 
