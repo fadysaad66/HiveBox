@@ -17,9 +17,10 @@ jobs:
         python-version: "3.10"
         
      - name: Install Python dependencies
-       run: |
+       run: |  #unittest-xml-reporting for test report, pylint for test
         python -m pip install --upgrade pip
-        pip install flask requests python-dateutil pylint
+        pip install flask requests python-dateutil pylint unittest-xml-reporting
+        
 
      - name: pylint check
        working-directory: phase2
@@ -42,7 +43,7 @@ jobs:
         docker build -t hivebox .
 
      - name: Run unit tests
-       run: python -m unittest discover -s phase2 . -p "unit_test.py"
+       run: python -m xmlrunner discover -s phase2 -p "unit_test.py" -o test-results
 
      - name: run docker 
        run: |
