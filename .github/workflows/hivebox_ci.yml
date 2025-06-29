@@ -22,8 +22,9 @@ jobs:
         pip install flask requests python-dateutil pylint
 
      - name: pylint check
+       working-directory: phase2
        run: |
-          pylint phase2/hivebox_v2.py
+          pylint hivebox_v2.py
           
 
      - name: install hadolint 
@@ -32,11 +33,13 @@ jobs:
         chmod +x /usr/local/bin/hadolint
         
      - name: Lint Dockerfile
-       run: hadolint phase2/Dockerfile
+       working-directory: phase2
+       run: hadolint dockerfile
 
      - name: build docker
+       working-directory: phase2
        run: |
-        docker build -t hivebox phase2
+        docker build -t hivebox .
 
      - name: Run unit tests
        run: python -m unittest discover -s phase2 . -p "unit_test.py"
