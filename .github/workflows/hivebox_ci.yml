@@ -23,7 +23,7 @@ jobs:
 
      - name: pylint check
        run: |
-          pylint hivebox_v2.py
+          pylint phase2/hivebox_v2.py
           
 
      - name: install hadolint 
@@ -32,14 +32,14 @@ jobs:
         chmod +x /usr/local/bin/hadolint
         
      - name: Lint Dockerfile
-       run: hadolint Dockerfile
+       run: hadolint phase2/Dockerfile
 
      - name: build docker
        run: |
-        docker build -t hivebox .
+        docker build -t hivebox phase2
 
      - name: Run unit tests
-       run: python -m unittest discover -s . -p "unit_test.py"
+       run: python -m unittest discover -s phase2 . -p "unit_test.py"
 
      - name: run docker 
        run: |
