@@ -43,9 +43,9 @@ Hadolint for Docker check
 Hadolint 
 
 ------------------------------------------------
-Work steps:
+# Work steps:
 
-1- Development:
+## Development:
 
  1- create an app with 2 function 
 
@@ -57,7 +57,7 @@ Work steps:
 
  3- Create a docker file and requirements file.
 
-2- Test
+## Test
 
 1- On VS code terminal run :
 
@@ -80,6 +80,40 @@ U can check the ruslt of the app
      docker build -t hivebox .
 
      docker run -d -p 5000:5000 --name hivebox hivebox
+
+4- Now we can test same like  step 2 
+
+
+## Github work
+
+1- Upload your work to Github repo for the project.
+
+2-  To create a workflow action for the work go to:
+
+   Actions -----> New workflow -----> Setup you work flow.
+
+3- Inside the work flow (python_ci.yml) will create these steps:
+
+  1- checkout repo files.
+
+  2- checkout python.
+
+  3- Install Python dependencies (flask, requests, python-dateutil, pylint, unittest-xml-reporting).
+
+  4- pylint check.
+
+  5- install hadolint (as a lint for docker).
+
+  6- build docker and run docker. 
+
+  7- Test /version endpoint.
+
+  8- Publish Test Report.
+
+4- now go to workflow actions and see the build report and Junit test report.
+ 
+
+
    
 
 
