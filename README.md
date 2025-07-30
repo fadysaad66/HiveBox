@@ -86,6 +86,8 @@ U can check the ruslt of the app
 
 ## Github work
 
+Building CI/CD for Phase two from the project
+
 1- Upload your work to Github repo for the project.
 
 2-  To create a workflow action for the work go to:
